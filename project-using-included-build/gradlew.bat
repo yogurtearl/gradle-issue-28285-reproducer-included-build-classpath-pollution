@@ -1,0 +1,1 @@
+../../jvm-paved-road-template/gradlew.bat
