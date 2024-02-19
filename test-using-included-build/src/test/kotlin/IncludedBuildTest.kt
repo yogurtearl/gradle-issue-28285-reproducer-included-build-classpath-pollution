@@ -17,6 +17,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 
 
@@ -33,6 +34,10 @@ class IncludedBuildTest {
             """
                pluginManagement {
                    includeBuild("${Paths.get("..", "included-build").toAbsolutePath()}")
+                   
+                   repositories {
+                       maven("${Path.of(System.getProperty("pluginUnderTestMavenRepo")).toAbsolutePath()}")
+                   }
                }
 
                plugins {
@@ -43,7 +48,7 @@ class IncludedBuildTest {
 
         val build = GradleRunner.create()
             .withDebug(true)
-            .withPluginClasspath() // this is the key to reproducing the issue, it changes the classpath of the included build.
+            //.withPluginClasspath() // instead we use the locally published plugin and the test does not fail
             .withProjectDir(tempDir)
             .withArguments("build")
             .build()
