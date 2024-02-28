@@ -14,3 +14,4 @@
  */
 
 // nothing here. but this file has to exist to trigger the issue.
+println("my-plugin applied to ${rootProject.projectDir}")

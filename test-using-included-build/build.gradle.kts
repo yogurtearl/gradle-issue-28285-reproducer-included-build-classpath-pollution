@@ -17,7 +17,11 @@ import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 
 plugins {
     `kotlin-dsl`
+    `maven-publish`
 }
+
+group = "test.plugin"
+version = "0.0.1"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
@@ -27,6 +31,23 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+val localMavenRepoForTestingPlugin = "${buildDir}/plugin-under-test-maven-repo"
+val mavenRepoName = "LocalMavenRepoForTestingPlugin"
+publishing {
+    repositories {
+        maven {
+            name = mavenRepoName
+            url = uri("file://$localMavenRepoForTestingPlugin")
+        }
+    }
+}
+
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    // make sure we publish the plugin before the tests run
+    dependsOn("publishAllPublicationsTo${mavenRepoName.uppercaseFirstChar()}Repository")
+
+    // this will be read by the test, so it load the plugin from the local maven repo
+    this.systemProperties["pluginUnderTestMavenRepo"] = localMavenRepoForTestingPlugin
+    this.systemProperties["pluginUnderTestVersion"] = version
 }
